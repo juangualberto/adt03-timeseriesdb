@@ -374,6 +374,96 @@ void loop(){
 
 ## Conexión a WiFi
 
+Como ya sabemos, para conectar dos dispositivos de red vía WiFi, disponemos de tres opciones:
 
+1. **modo estación (conexión a un punto de acceso)**: Conectamos a un router o punto de acceso que a su vez nos comunica con otros equipos conectados a la LAN o a Internet.
+2. **modo punto de acceso (creación de un punto de acceso)**: El ESP32 es quien nos *da* conexión, es decir el resto de dispositivos se conectan a él. Como es obvio, en este caso no tendremos conexión a Internet.
+3. **modo ad-hoc (conexión directa entre dispositivos)**: Esta opción es la más restrictiva, pues permite la comunicación punto a punto entre dispositivos configurados exactamente igual solamente (normalmente sólo dos dispositivos).
+
+Veamos cómo sería en cada caso:
+
+### 1. **Configurar ESP32 como Estación (Conexión a un Punto de Acceso):**
+
+```cpp
+#include <WiFi.h>
+
+const char *ssid = "NombreDelPuntoDeAcceso";
+const char *password = "ContraseñaDelPuntoDeAcceso";
+
+void setup() {
+  Serial.begin(115200);
+
+  // Conectar el ESP32 a un punto de acceso
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Conectando a WiFi...");
+  }
+
+  Serial.println("Conectado a WiFi");
+}
+
+void loop() {
+  // Tu código aquí
+}
+```
+
+Este código configura el ESP32 para conectarse a un punto de acceso WiFi específico utilizando el nombre (SSID) y la contraseña proporcionados. Si el punto de acceso está conectado a Internet, todos los dispositivos tienen la posibilidad de acceder a la red de redes.
+
+### 2. **Configurar ESP32 como Punto de Acceso:**
+
+```cpp
+#include <WiFi.h>
+
+const char *ssid = "NombreDelPuntoDeAcceso";
+const char *password = "ContraseñaDelPuntoDeAcceso";
+
+void setup() {
+  Serial.begin(115200);
+
+  // Configurar el ESP32 como punto de acceso
+  WiFi.softAP(ssid, password);
+
+  Serial.println("Punto de Acceso configurado con éxito");
+}
+
+void loop() {
+  // Tu código aquí
+}
+```
+
+Este código configura el ESP32 para crear un punto de acceso WiFi con el nombre (SSID) y la contraseña proporcionados. Los dispositivos pueden conectarse a este punto de acceso utilizando las credenciales especificadas. No hay posibilidad de usar Internet.
+
+### 3. **Configurar ESP32 en Modo Ad-Hoc:**
+
+```cpp
+#include <WiFi.h>
+
+const char *ssid = "NombreDeRedAdHoc";
+const char *password = "ContraseñaAdHoc";
+
+void setup() {
+  Serial.begin(115200);
+
+  // Configurar el ESP32 en modo ad-hoc
+  WiFi.begin(ssid, password, 1, NULL, false);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Conectando al modo Ad-Hoc...");
+  }
+
+  Serial.println("Conectado al modo Ad-Hoc");
+}
+
+void loop() {
+  // Tu código aquí
+}
+```
+
+Este código configura el ESP32 para unirse a una red WiFi ad-hoc con el nombre y la contraseña especificados. Puedes configurar varios ESP32 para unirse a la misma red ad-hoc y comunicarse directamente entre sí.
+
+El modo ad-hoc es más complejo y puede tener limitaciones dependiendo de los dispositivos y las configuraciones específicas. Todos los dispositivos que desees que se comuniquen estén en el mismo canal y compartan la misma configuración de red (nombre y contraseña).
 
 \pagebreak
