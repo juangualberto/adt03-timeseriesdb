@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  .container
+    .row
+      .col-12
+        h1 Bienvenido, #{user || 'Invitado'}
+        if user
+          p
+            a.btn.btn-primary(href='/logout') Cerrar Sesión
+        else
+          p
+            a.btn.btn-primary(href='/login') Iniciar Sesión

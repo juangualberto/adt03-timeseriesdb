@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programador de tareas</title>
+</head>
+<body>
+
+<h1>TO-DO App</h1>
+
+<!-- Formulario para agregar una nueva tarea -->
+<form id="addTodoForm">
+  <label for="task">Nueva tarea:</label>
+  <input type="text" id="task" required>
+  <button type="submit">Agregar tarea</button>
+</form>
+
+<!-- Lista de tareas -->
+<ul id="todoList"></ul>
+
+<script>
+  // Cliente JavaScript para interactuar con la API REST
+
+  const apiUrl = 'http://localhost:8000/todos';
+  const todoList = document.getElementById('todoList');
+  const addTodoForm = document.getElementById('addTodoForm');
+
+  // Función para cargar las tareas
+  async function fetchTodos() {
+    const response = await fetch(apiUrl);
+    const todos = await response.json();
+    displayTodos(todos);
+  }
+
+  // Función para mostrar las tareas en el cliente
+  function displayTodos(todos) {
+    todoList.innerHTML = '';
+    todos.forEach(todo => {
+      const listItem = document.createElement('li');
+      listItem.innerHTML = `${todo.task} 
+        <button onclick="updateTodo(${todo.id})">Actualizar</button>
+        <button onclick="deleteTodo(${todo.id})">Eliminar</button>`;
+      todoList.appendChild(listItem);
+    });
+  }
+
+  // Función para agregar una nueva tarea
+  async function addTodo(event) {
+    event.preventDefault();
+    const taskInput = document.getElementById('task');
+    const task = taskInput.value;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ task }),
+    });
+
+    if (response.ok) {
+      fetchTodos();
+      taskInput.value = '';
+    }
+  }
+
+  // Función para actualizar una tarea
+  async function updateTodo(id) {
+    const response = await fetch(`${apiUrl}/${id}`);
+    const todo = await response.json();
+    const updatedTask = prompt('Actualizar tarea:', todo.task);
+
+    if (updatedTask !== null) {
+      await fetch(`${apiUrl}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ task: updatedTask }),
+      });
+
+      fetchTodos();
+    }
+  }
+
+  // Función para eliminar una tarea
+  async function deleteTodo(id) {
+    const confirmDelete = confirm('¿Seguro que quieres eliminar esta tarea?');
+
+    if (confirmDelete) {
+      await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+      fetchTodos();
+    }
+  }
+
+  // Event Listener para el formulario de agregar tarea
+  addTodoForm.addEventListener('submit', addTodo);
+
+  // Cargar las tareas al cargar la página
+  fetchTodos();
+</script>
+
+</body>
+</html>
